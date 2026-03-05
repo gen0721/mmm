@@ -76,4 +76,20 @@ io.on('connection', (socket) => {
 });
 
 server.listen(process.env.PORT || 3000, () => console.log('✅ Server started!'));
+// ... твой предыдущий код ...
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`✅ Server is running on port ${PORT}`);
+    
+    // САМОЕ ВАЖНОЕ: Запуск бота после старта сервера
+    bot.launch()
+        .then(() => console.log('🚀 Telegram Bot is live!'))
+        .catch((err) => console.error('❌ Bot launch error:', err));
+});
+
+// Плавная остановка при перезагрузке Railway
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
