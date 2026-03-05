@@ -69,27 +69,25 @@ bot.command('admin', (ctx) => {
     }
 });
 
-// Socket.io Чат
+// --- Socket.io Чат (ОСТАВЛЯЕМ ОДИН РАЗ) ---
 io.on('connection', (socket) => {
+    console.log('User connected to socket');
     socket.on('join_chat', (orderId) => socket.join(orderId));
     socket.on('send_msg', (data) => io.to(data.orderId).emit('new_msg', data));
 });
 
-server.listen(process.env.PORT || 3000, () => console.log('✅ Server started!'));
-// ... твой предыдущий код ...
-
+// --- ЗАПУСК СЕРВЕРА И БОТА (ТОЛЬКО ОДИН РАЗ) ---
 const PORT = process.env.PORT || 3000;
+
 server.listen(PORT, "0.0.0.0", () => {
     console.log(`✅ Server is running on port ${PORT}`);
     
-    // САМОЕ ВАЖНОЕ: Запуск бота после старта сервера
+    // Запуск бота
     bot.launch()
         .then(() => console.log('🚀 Telegram Bot is live!'))
         .catch((err) => console.error('❌ Bot launch error:', err));
 });
 
-// Плавная остановка при перезагрузке Railway
+// Обработка корректной остановки
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
-
