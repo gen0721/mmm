@@ -1,69 +1,75 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
-tg.ready();
 
-// Данные (Должны приходить с сервера, пока для теста тут)
-const products = [
-    { id: 101, name: "Arcana Fiend", game: "DOTA 2", price: 32.50, img: "https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/heroes/nevermore.png" },
-    { id: 102, name: "Karambit Fade", game: "CS2", price: 450.00, img: "https://community.cloudflare.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpovbSsLQJf1f_BYAJD4eO7lZKKm_S6Z-uBkz0Fv8Yp2bHAp9it2VfmqBA-NmjyJ9WdclM9Y1HY_1S-wr_o08S7v53BznVrvT5iuyj-Vno2tg" },
-    { id: 103, name: "GTA V Cash 100M", game: "GTA 5", price: 12.00, img: "https://media-rockstargames-com.akamaized.net/rockstargames-newsite/img/global/games/fob/640/V.jpg" }
+// Данные для слайдера и каталога
+const trends = [
+    { title: "Dota 2: Arcana Bundle", price: "29.99€", img: "⚔️" },
+    { title: "CS2: Karambit Doppler", price: "850€", img: "🔪" },
+    { title: "GTA V: Money Boost", price: "15€", img: "💰" }
+];
+
+const items = [
+    { name: "Global Elite Acc", game: "CS2", price: 45, type: "acc" },
+    { name: "Immortal Rank", game: "Dota 2", price: 120, type: "service" },
+    { name: "Prime Status", game: "CS2", price: 15, type: "item" },
+    { name: "Shark Card", game: "GTA 5", price: 20, type: "service" }
 ];
 
 function init() {
-    // Авто-смена темы (Ночь/Cyber)
-    const h = new Date().getHours();
-    if (h >= 6 && h < 18) {
-        document.documentElement.style.setProperty('--accent', '#bc13fe'); // Фиолетовый днем
-    }
+    // Движение свечения за пальцем
+    window.addEventListener('mousemove', (e) => {
+        gsap.to("#cursor-glow", { x: e.clientX, y: e.clientY, duration: 0.5 });
+    });
 
-    render(products);
+    renderHero();
+    renderCatalog(items);
+
+    // Анимация появления элементов
+    gsap.from(".hero-card", { opacity: 0, x: 50, stagger: 0.2, duration: 1 });
 }
 
-function render(data) {
-    const catalog = document.getElementById('catalog');
-    catalog.innerHTML = data.map(p => `
-        <div class="card" onclick="handleBuy(${p.id}, ${p.price})">
-            <img src="${p.img}" class="game-img" alt="game">
-            <span class="game-name">${p.game}</span>
-            <span class="item-name">${p.name}</span>
-            <span class="price">${p.price.toFixed(2)} €</span>
+function renderHero() {
+    const track = document.getElementById('hero-track');
+    track.innerHTML = trends.map(t => `
+        <div class="hero-card">
+            <div style="font-size: 40px; z-index: 1">${t.img}</div>
+            <div style="z-index: 1">
+                <h4 style="margin: 0">${t.title}</h4>
+                <div style="color: #00ffcc; font-weight: 800">${t.price}</div>
+            </div>
         </div>
     `).join('');
 }
 
-async function handleBuy(id, price) {
-    tg.HapticFeedback.impactOccurred('medium');
-    
-    // Показываем стандартный Telegram Popup
-    tg.showConfirm(`Вы подтверждаете покупку за ${price}€?`, async (confirm) => {
-        if (confirm) {
-            tg.MainButton.setText('ОЖИДАНИЕ ОПЛАТЫ...').show();
-            
-            try {
-                const res = await fetch('/api/create-order', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ userId: tg.initDataUnsafe.user?.id, price: price })
-                });
-                const data = await res.json();
-                
-                if (data.url) {
-                    tg.openLink(data.url); // Открываем CryptoBot
-                }
-            } catch (err) {
-                tg.showAlert("Ошибка сервера. Попробуйте позже.");
-            } finally {
-                tg.MainButton.hide();
-            }
-        }
-    });
+function renderCatalog(data) {
+    const grid = document.getElementById('main-catalog');
+    grid.innerHTML = data.map(i => `
+        <div class="p-card">
+            <div style="font-size: 12px; opacity: 0.5">${i.game}</div>
+            <div style="font-weight: 700; margin: 5px 0">${i.name}</div>
+            <div style="color: #00ffcc">${i.price} €</div>
+            <button class="buy-small" onclick="handleOrder(${i.price})">+</button>
+        </div>
+    `).join('');
 }
 
-// Поиск
-document.getElementById('searchInput').addEventListener('input', (e) => {
-    const val = e.target.value.toLowerCase();
-    const filtered = products.filter(p => p.name.toLowerCase().includes(val) || p.game.toLowerCase().includes(val));
-    render(filtered);
-});
+function toggleCatalog() {
+    const overlay = document.getElementById('catalog-overlay');
+    const isVisible = overlay.style.display === 'block';
+    
+    if (isVisible) {
+        gsap.to(".overlay", { opacity: 0, duration: 0.3, onComplete: () => overlay.style.display = 'none' });
+    } else {
+        overlay.style.display = 'block';
+        gsap.fromTo(".overlay", { opacity: 0 }, { opacity: 1, duration: 0.3 });
+        gsap.from(".cat-item", { x: -30, opacity: 0, stagger: 0.1 });
+    }
+}
+
+async function handleOrder(price) {
+    tg.HapticFeedback.impactOccurred('heavy');
+    // Интеграция с твоим сервером
+    alert("Создание заказа на " + price + "€");
+}
 
 init();
