@@ -1,72 +1,53 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// Эмуляция базы данных
-let state = {
-    user: tg.initDataUnsafe.user || { first_name: "anva4ik", id: 0 },
-    items: [
-        { id: 1, name: "Dragonclaw Hook", price: "150€", game: "DOTA 2" },
-        { id: 2, name: "AWP Dragon Lore", price: "2400€", game: "CS2" }
-    ]
-};
-
-function init() {
-    // Подгрузка данных пользователя
-    document.getElementById('user-name-header').innerText = state.user.first_name;
-    document.getElementById('profile-name').innerText = state.user.first_name;
-    document.getElementById('user-id').innerText = state.user.id;
-    if(state.user.photo_url) {
-        document.getElementById('avatar-img').src = state.user.photo_url;
-        document.getElementById('profile-pic').src = state.user.photo_url;
-    }
-
-    renderHome();
-    renderCatalog();
-}
-
-function showPage(pageId, el) {
-    tg.HapticFeedback.impactOccurred('light');
-    
-    // Переключение страниц
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${pageId}`).classList.add('active');
-
-    // Обновление навбара
-    if (el) {
-        document.querySelectorAll('.dock-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
-    }
-}
-
-function renderHome() {
-    const container = document.getElementById('fast-items');
-    container.innerHTML = state.items.map(i => `
-        <div class="card" onclick="openItem(${i.id})">
-            <div style="font-size: 10px; color: var(--accent)">${i.game}</div>
-            <div style="font-weight: bold; margin: 5px 0">${i.name}</div>
-            <div>${i.price}</div>
-        </div>
-    `).join('');
-}
-
-function renderCatalog() {
-    const container = document.getElementById('full-catalog');
-    container.innerHTML = state.items.map(i => `
-        <div class="card" style="height: 180px">
-            <div>${i.game}</div>
-            <h3>${i.name}</h3>
-            <button class="buy-btn">Купить</button>
-        </div>
-    `).join('');
-}
-
-function openAddModal() {
-    tg.HapticFeedback.notificationOccurred('success');
-    tg.showPopup({
-        title: 'Маркетплейс',
-        message: 'Хотите выставить новый товар?',
-        buttons: [{id: 'ok', type: 'default', text: 'Да, заполнить форму'}, {type: 'cancel'}]
+// Функция пополнения через Crypto Bot
+async function deposit() {
+    tg.HapticFeedback.impactOccurred('heavy');
+    const amount = await new Promise(resolve => {
+        const val = prompt("Введите сумму пополнения (€):", "10");
+        resolve(val);
     });
+
+    if (!amount || isNaN(amount)) return;
+
+    // Запрос к твоему серверу (server.js)
+    try {
+        const res = await fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userId: tg.initDataUnsafe.user?.id, 
+                price: amount 
+            })
+        });
+        const data = await res.json();
+        
+        if (data.url) {
+            tg.openLink(data.url); // Открываем счет в Crypto Bot
+        }
+    } catch (e) {
+        tg.showAlert("Ошибка платежной системы!");
+    }
 }
 
-init();
+// Проверка на админа (anva4ik)
+function checkAdmin() {
+    const adminId = 12345678; // ЗАМЕНИ НА СВОЙ ID
+    if (tg.initDataUnsafe.user?.id === adminId) {
+        document.getElementById('admin-panel').style.display = 'block';
+    }
+}
+
+// Анимация появления при скролле
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = "translateY(0)";
+        }
+    });
+});
+
+document.querySelectorAll('.imba-card').forEach(card => observer.observe(card));
+checkAdmin();
