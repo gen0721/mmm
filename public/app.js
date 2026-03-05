@@ -1,75 +1,64 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
+tg.ready();
 
-// Данные для слайдера и каталога
-const trends = [
-    { title: "Dota 2: Arcana Bundle", price: "29.99€", img: "⚔️" },
-    { title: "CS2: Karambit Doppler", price: "850€", img: "🔪" },
-    { title: "GTA V: Money Boost", price: "15€", img: "💰" }
-];
+const data = {
+    user: tg.initDataUnsafe.user || { first_name: "anva4ik" },
+    items: [
+        { id: 1, title: "Knife Fade", price: 450, tag: "CS2", color: "#ff4b2b" },
+        { id: 2, title: "Dragonclaw Hook", price: 180, tag: "DOTA 2", color: "#4facfe" },
+        { id: 3, title: "100M GTA Cash", price: 15, tag: "GTA 5", color: "#00f2fe" },
+        { id: 4, title: "Account 7000 MMR", price: 110, tag: "DOTA 2", color: "#bc13fe" }
+    ]
+};
 
-const items = [
-    { name: "Global Elite Acc", game: "CS2", price: 45, type: "acc" },
-    { name: "Immortal Rank", game: "Dota 2", price: 120, type: "service" },
-    { name: "Prime Status", game: "CS2", price: 15, type: "item" },
-    { name: "Shark Card", game: "GTA 5", price: 20, type: "service" }
-];
+function setup() {
+    document.getElementById('user-name').innerText = data.user.first_name;
+    document.getElementById('user-avatar').innerText = data.user.first_name[0];
 
-function init() {
-    // Движение свечения за пальцем
-    window.addEventListener('mousemove', (e) => {
-        gsap.to("#cursor-glow", { x: e.clientX, y: e.clientY, duration: 0.5 });
-    });
+    renderCatalog();
+    renderOffers();
 
-    renderHero();
-    renderCatalog(items);
-
-    // Анимация появления элементов
-    gsap.from(".hero-card", { opacity: 0, x: 50, stagger: 0.2, duration: 1 });
+    // GSAP Анимация появления
+    gsap.from(".item-card", { opacity: 0, scale: 0.8, stagger: 0.1, duration: 0.6, ease: "back.out(1.7)" });
 }
 
-function renderHero() {
-    const track = document.getElementById('hero-track');
-    track.innerHTML = trends.map(t => `
-        <div class="hero-card">
-            <div style="font-size: 40px; z-index: 1">${t.img}</div>
-            <div style="z-index: 1">
-                <h4 style="margin: 0">${t.title}</h4>
-                <div style="color: #00ffcc; font-weight: 800">${t.price}</div>
-            </div>
+function renderOffers() {
+    const slider = document.getElementById('featured-slider');
+    const offers = [
+        { t: "Скидка -20% на все скины", c: "linear-gradient(45deg, #f093fb, #f5576c)" },
+        { t: "Новое поступление CS2", c: "linear-gradient(45deg, #5ee7df, #b490ca)" }
+    ];
+    slider.innerHTML = offers.map(o => `
+        <div class="offer-card" style="background: ${o.c}; opacity: 0.9">
+            <h2 style="margin:0">${o.t}</h2>
+            <button style="margin-top:20px; border:none; padding:10px 20px; border-radius:10px; font-weight:bold">Смотреть</button>
         </div>
     `).join('');
 }
 
-function renderCatalog(data) {
-    const grid = document.getElementById('main-catalog');
-    grid.innerHTML = data.map(i => `
-        <div class="p-card">
-            <div style="font-size: 12px; opacity: 0.5">${i.game}</div>
-            <div style="font-weight: 700; margin: 5px 0">${i.name}</div>
-            <div style="color: #00ffcc">${i.price} €</div>
-            <button class="buy-small" onclick="handleOrder(${i.price})">+</button>
+function renderCatalog() {
+    const grid = document.getElementById('market-grid');
+    grid.innerHTML = data.items.map(i => `
+        <div class="item-card" onclick="buy(${i.id}, ${i.price})">
+            <div style="font-size: 10px; color: ${i.color}; font-weight: 800; text-transform: uppercase">${i.tag}</div>
+            <div style="font-size: 16px; font-weight: bold; margin: 10px 0">${i.title}</div>
+            <div style="font-size: 18px; font-weight: 900; color: #fff">${i.price} €</div>
         </div>
     `).join('');
 }
 
-function toggleCatalog() {
-    const overlay = document.getElementById('catalog-overlay');
-    const isVisible = overlay.style.display === 'block';
-    
-    if (isVisible) {
-        gsap.to(".overlay", { opacity: 0, duration: 0.3, onComplete: () => overlay.style.display = 'none' });
-    } else {
-        overlay.style.display = 'block';
-        gsap.fromTo(".overlay", { opacity: 0 }, { opacity: 1, duration: 0.3 });
-        gsap.from(".cat-item", { x: -30, opacity: 0, stagger: 0.1 });
-    }
+function nav(el) {
+    document.querySelectorAll('.tab-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    tg.HapticFeedback.selectionChanged();
 }
 
-async function handleOrder(price) {
+async function buy(id, price) {
     tg.HapticFeedback.impactOccurred('heavy');
-    // Интеграция с твоим сервером
-    alert("Создание заказа на " + price + "€");
+    tg.showConfirm(`Подтверждаете покупку за ${price}€?`, (ok) => {
+        if(ok) tg.showAlert("Счет сформирован! Проверьте бота.");
+    });
 }
 
-init();
+setup();
