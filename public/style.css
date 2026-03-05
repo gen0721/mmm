@@ -1,69 +1,60 @@
 :root {
-    --primary: #00ffcc;
-    --bg: #050505;
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --glass: blur(20px);
+    --accent: #00f2fe;
+    --accent-alt: #4facfe;
+    --bg: #000;
+    --card: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.1);
 }
 
 body {
     margin: 0; background: var(--bg); color: #fff;
-    font-family: 'Inter', system-ui; overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    overflow-x: hidden; padding-bottom: 100px;
 }
 
-/* Эффект свечения за курсором */
-.glow-point {
-    position: fixed; width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(0, 255, 204, 0.15) 0%, transparent 70%);
-    pointer-events: none; z-index: -1; transform: translate(-50%, -50%);
+/* Анимированный фон */
+.mesh-bg {
+    position: fixed; top: 0; width: 100%; height: 100%;
+    background: 
+        radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
+    z-index: -1;
 }
 
-header { padding: 20px; position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.8); backdrop-filter: var(--glass); }
-.nav-top { display: flex; justify-content: space-between; align-items: center; }
-.logo { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; }
-.dot { color: var(--primary); }
-.balance { background: var(--card-bg); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; }
-
-/* Слайдер на главной */
-.hero-slider { margin: 20px 0; overflow: hidden; padding-left: 20px; }
-.slider-track { display: flex; gap: 15px; cursor: grab; }
-
-.hero-card {
-    min-width: 280px; height: 160px; background: linear-gradient(45deg, #111, #222);
-    border-radius: 24px; border: 1px solid rgba(255,255,255,0.05);
-    display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
-    position: relative; overflow: hidden;
+header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px; position: sticky; top: 0; backdrop-filter: blur(20px); z-index: 10;
 }
 
-.hero-card::after {
-    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%);
-}
+.user-info { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, var(--accent), var(--accent-alt)); display: flex; justify-content: center; align-items: center; font-weight: bold; }
+.username { font-weight: 800; font-size: 18px; }
+.wallet { background: var(--card); padding: 8px 15px; border-radius: 15px; border: 1px solid var(--border); font-weight: bold; color: var(--accent); }
 
-/* Кнопка КАТАЛОГ */
-.action-bar { padding: 0 20px; margin-bottom: 20px; }
-.main-cat-btn {
-    width: 100%; padding: 18px; border-radius: 18px; border: none;
-    background: linear-gradient(90deg, #00ffcc, #0099ff);
-    color: #000; font-weight: 800; font-size: 16px; display: flex;
-    justify-content: center; align-items: center; gap: 10px;
-    box-shadow: 0 10px 25px rgba(0, 255, 204, 0.3);
+/* Слайдер Офферов */
+.stories-container { display: flex; gap: 15px; overflow-x: auto; padding: 10px 20px; scrollbar-width: none; }
+.offer-card {
+    min-width: 300px; height: 160px; border-radius: 25px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    border: 1px solid var(--border); padding: 20px; position: relative;
 }
 
 /* Сетка товаров */
-.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; }
-.p-card {
-    background: var(--card-bg); border-radius: 20px; padding: 12px;
-    border: 1px solid rgba(255,255,255,0.05); position: relative;
-}
-
-/* Оверлей меню */
-.overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95); z-index: 2000; display: none;
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+.item-card {
+    background: var(--card); border-radius: 22px; padding: 15px;
+    border: 1px solid var(--border); transition: 0.3s;
     backdrop-filter: blur(10px);
 }
-.overlay-content { padding: 40px 20px; }
-.cat-item {
-    padding: 20px; background: rgba(255,255,255,0.03); margin-bottom: 10px;
-    border-radius: 15px; font-size: 18px; font-weight: 600;
+.item-card:active { transform: scale(0.95); }
+
+/* Таббар (Apple Style) */
+.tabbar {
+    position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+    width: 90%; height: 65px; background: rgba(25, 25, 25, 0.8);
+    backdrop-filter: blur(25px); border-radius: 25px; border: 1px solid var(--border);
+    display: flex; justify-content: space-around; align-items: center; z-index: 1000;
 }
+.tab-item { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #fff; opacity: 0.4; transition: 0.3s; }
+.tab-item.active { opacity: 1; color: var(--accent); }
+.tab-item svg { width: 24px; }
