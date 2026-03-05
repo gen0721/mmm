@@ -1,90 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
 :root {
-    --accent: #00f2fe;
-    --bg: #050505;
-    --card: rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.1);
+    --accent: #00ffa3; /* Технологичный зеленый */
+    --bg: #000000;
+    --card-bg: rgba(20, 20, 20, 0.7);
+    --border: rgba(255, 255, 255, 0.08);
 }
 
 body {
-    margin: 0; padding: 0; background: var(--bg); color: white;
-    font-family: 'Inter', sans-serif; overflow-x: hidden;
-    transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0; padding: 0; background: var(--bg); color: #fff;
+    font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
 }
 
-/* Эффект шума и свечения */
-.bg-overlay {
-    position: fixed; top: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at 50% -20%, var(--accent) 0%, transparent 40%);
-    opacity: 0.2; z-index: -1;
+/* Эффект глубокого фона */
+body::before {
+    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: 
+        radial-gradient(circle at 0% 0%, rgba(0, 255, 163, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+    z-index: -1;
 }
 
-/* Дневная тема (Cyberpunk) */
-body.day {
-    --accent: #bc13fe;
-    --bg: #0b0118;
-}
-
+/* Заголовок как в iOS */
 header {
-    padding: 25px 20px;
+    padding: 30px 20px 10px;
     backdrop-filter: blur(20px);
-    position: sticky; top: 0; z-index: 100;
+    position: sticky; top: 0; z-index: 1000;
 }
 
-.logo { font-size: 22px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
-.accent-text { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+.logo { font-size: 24px; font-weight: 800; letter-spacing: -1px; }
+.balance-chip {
+    background: var(--card-bg); border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 100px; font-weight: 600; font-size: 14px;
+}
 
-/* Красивый поиск */
+/* Поиск с эффектом стекла */
 .search-container {
-    margin-top: 15px; background: var(--card);
-    border-radius: 15px; border: 1px solid var(--border);
-    display: flex; align-items: center; padding: 10px 15px;
+    margin: 15px 0; background: rgba(255,255,255,0.05);
+    border-radius: 12px; border: 1px solid var(--border);
+    display: flex; align-items: center; padding: 12px 15px;
 }
 .search-container input {
-    background: transparent; border: none; color: white; width: 100%; outline: none;
+    background: transparent; border: none; color: #fff; width: 100%;
+    font-size: 16px; outline: none;
 }
 
-/* Категории как в App Store */
-.categories {
-    display: flex; gap: 10px; overflow-x: auto; padding: 15px 20px; scrollbar-width: none;
-}
-.cat-btn {
-    padding: 8px 18px; background: var(--card); border-radius: 12px;
-    border: 1px solid var(--border); font-size: 13px; white-space: nowrap;
-    transition: 0.3s;
-}
-.cat-btn.active {
-    background: var(--accent); color: black; font-weight: bold;
-    box-shadow: 0 5px 15px var(--accent); border: none;
-}
-
-/* Карточки товаров */
+/* Сетки товаров */
 .grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px;
 }
+
 .card {
-    background: var(--card); border-radius: 20px; padding: 15px;
-    border: 1px solid var(--border); position: relative;
-    animation: cardAppear 0.5s ease backwards;
-}
-.card:active { transform: scale(0.95); }
-
-@keyframes cardAppear {
-    from { opacity: 0; transform: translateY(30px) scale(0.9); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    background: var(--card-bg); border-radius: 16px; padding: 12px;
+    border: 1px solid var(--border); backdrop-filter: blur(10px);
+    transition: all 0.2s ease; position: relative;
+    display: flex; flex-direction: column; justify-content: space-between;
 }
 
-.game-badge {
-    font-size: 10px; background: rgba(0,0,0,0.5); padding: 3px 8px;
-    border-radius: 5px; color: var(--accent); margin-bottom: 8px; display: inline-block;
+.card:active { transform: scale(0.97); background: rgba(255,255,255,0.05); }
+
+/* Иконки игр */
+.game-img {
+    width: 100%; aspect-ratio: 16/9; border-radius: 10px;
+    background: #111; margin-bottom: 10px; object-fit: cover;
+    border: 1px solid rgba(255,255,255,0.03);
 }
 
-.price { font-size: 18px; font-weight: 800; margin-top: 10px; display: block; }
+.item-name { font-size: 14px; font-weight: 600; color: #eee; margin-bottom: 4px; }
+.game-name { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+.price { font-size: 16px; font-weight: 800; color: var(--accent); margin-top: 8px; }
 
-/* Нижний Навбар */
+/* Навигация */
 .navbar {
-    position: fixed; bottom: 20px; left: 5%; width: 90%;
-    background: rgba(20,20,20,0.8); backdrop-filter: blur(25px);
-    height: 65px; border-radius: 25px; display: flex;
-    justify-content: space-around; align-items: center;
-    border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(30px);
+    border-top: 1px solid var(--border); height: 70px;
+    display: flex; justify-content: space-around; align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
 }
+.nav-btn { font-size: 20px; opacity: 0.4; transition: 0.3s; }
+.nav-btn.active { opacity: 1; filter: drop-shadow(0 0 5px var(--accent)); color: var(--accent); }
