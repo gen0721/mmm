@@ -1,0 +1,45 @@
+:root {
+    --accent: #00ffcc;
+    --bg: #050505;
+    --glass: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    margin: 0; background: var(--bg); color: white;
+    font-family: 'Inter', sans-serif; transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Эффект Cyberpunk Day */
+body.day {
+    --accent: #ff00ff;
+    background: radial-gradient(circle at top, #1a0033, #050505);
+}
+
+.mesh {
+    position: fixed; top: 0; width: 100%; height: 100%;
+    background: url('https://grainy-gradients.vercel.app/noise.svg');
+    opacity: 0.15; z-index: -1;
+}
+
+.grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px;
+}
+
+.card {
+    background: var(--glass); border-radius: 18px; padding: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px); animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.navbar {
+    position: fixed; bottom: 15px; left: 5%; width: 90%;
+    background: rgba(10,10,10,0.8); backdrop-filter: blur(20px);
+    height: 60px; border-radius: 20px; display: flex;
+    justify-content: space-around; align-items: center; border: 1px solid var(--glass);
+}
+
