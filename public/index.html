@@ -1,69 +1,23 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body>
-    <div class="glow"></div>
+<div class="neon-bg"></div>
 
-    <section id="page-home" class="page active">
-        <header>
-            <div class="logo">MAGIC<span>.</span></div>
-            <div class="user-pill" onclick="showPage('profile')">
-                <img id="avatar-img" src="" alt="">
-                <span id="user-name-header">...</span>
-            </div>
-        </header>
-
-        <div class="hero-carousel">
-            <div class="carousel-track" id="hero-slider">
-                </div>
+<div class="imba-card" style="margin: 20px;">
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h1 style="font-family: 'Syncopate'; margin:0">LEVEL <span style="color:var(--neon)">99</span></h1>
+            <p id="user-name">Loading...</p>
         </div>
+        <button class="btn-crypto" onclick="deposit()">+ ПОПОЛНИТЬ</button>
+    </div>
+</div>
 
-        <div class="catalog-bar">
-            <h2>Каталог</h2>
-            <button class="btn-all" onclick="showPage('catalog')">Все →</button>
-        </div>
-        
-        <div class="fast-grid" id="fast-items"></div>
-    </section>
+<div class="catalog-scroll">
+    <div class="imba-card category" onclick="filter('acc')">АККАУНТЫ</div>
+    <div class="imba-card category" onclick="filter('items')">ПРЕДМЕТЫ</div>
+    <div class="imba-card category" onclick="filter('gold')">ВАЛЮТА</div>
+</div>
 
-    <section id="page-catalog" class="page">
-        <div class="page-header">
-            <button class="back-btn" onclick="showPage('home')">←</button>
-            <h1>Маркетплейс</h1>
-        </div>
-        <div class="search-box">
-            <input type="text" placeholder="Поиск по играм и скинам...">
-        </div>
-        <div id="full-catalog" class="full-grid"></div>
-    </section>
-
-    <section id="page-profile" class="page">
-        <div class="profile-card">
-            <div class="profile-bg"></div>
-            <img id="profile-pic" src="" alt="">
-            <h2 id="profile-name">anva4ik</h2>
-            <p>ID: <span id="user-id">0000</span></p>
-            <div class="stats">
-                <div class="stat-box"><h4>0</h4><span>Сделок</span></div>
-                <div class="stat-box"><h4>0.00€</h4><span>Баланс</span></div>
-            </div>
-        </div>
-        <button class="add-item-btn" onclick="openAddModal()">➕ ВЫСТАВИТЬ ТОВАР</button>
-    </section>
-
-    <nav class="dock">
-        <div class="dock-item active" onclick="showPage('home', this)">🏠</div>
-        <div class="dock-item" onclick="showPage('catalog', this)">📦</div>
-        <div class="dock-item" onclick="openAddModal()">➕</div>
-        <div class="dock-item" onclick="showPage('profile', this)">👤</div>
-    </nav>
-
-    <script src="app.js"></script>
-</body>
-</html>
+<div id="admin-panel" class="admin-section" style="display:none; padding: 20px;">
+    <h2 style="color: var(--neon-pink)">ADMIN PANEL</h2>
+    <input type="text" id="itemName" placeholder="Название товара" class="imba-input">
+    <button onclick="addItem()" class="btn-crypto" style="background: var(--neon-pink)">ДОБАВИТЬ В КАТАЛОГ</button>
+</div>
