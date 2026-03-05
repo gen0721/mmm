@@ -1,36 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div id="loader"></div>
-    <div class="mesh"></div>
-    
-    <div class="app-container">
-        <header>
-            <div class="top-row">
-                <span class="logo">MAGIC MARKET</span>
-                <div class="balance">0.00 €</div>
-            </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 Поиск игр, аккаунтов...">
-            </div>
-        </header>
-
-        <div class="categories" id="cats">
-            <button class="active">Все</button>
-            <button>Аккаунты</button>
-            <button>Предметы</button>
-            <button>Услуги</button>
+    <header>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="logo">MAGIC<span style="color:var(--accent)">.</span></div>
+            <div class="balance-chip">0.00 €</div>
         </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Поиск товаров...">
+        </div>
+    </header>
 
-        <main class="grid" id="catalog"></main>
-    </div>
+    <div id="catalog" class="grid"></div>
 
     <nav class="navbar">
         <div class="nav-btn active">🏠</div>
@@ -38,7 +24,7 @@
         <div class="nav-btn">👤</div>
     </nav>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
-
