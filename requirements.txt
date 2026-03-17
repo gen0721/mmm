@@ -3,4 +3,4 @@ tgcrypto
 aiohttp
 asyncpg
 aiofiles
-aiogram==3.7.0
+aiogram==3.10.0
