@@ -65,14 +65,19 @@ def kb(*rows):
     ])
 
 def owner_only(func):
-    async def wrapper(event, *args, **kwargs):
+    import functools
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        # Находим event — первый аргумент (Message или CallbackQuery)
+        event = args[0] if args else None
         uid = getattr(getattr(event, 'from_user', None), 'id', 0)
         if uid != OWNER_ID:
             if hasattr(event, 'answer'): await event.answer("⛔️ Только для владельца", show_alert=True)
             elif hasattr(event, 'reply'): await event.reply("⛔️ Нет доступа")
             return
-        return await func(event, *args, **kwargs)
-    wrapper.__name__ = func.__name__
+        # Удаляем неожиданный аргумент 'dispatcher', если он есть (aiogram 3.x)
+        kwargs.pop('dispatcher', None)
+        return await func(*args, **kwargs)
     return wrapper
 
 class S(StatesGroup):
@@ -179,7 +184,12 @@ AI_INFO = {
     "gpt":         ("🤖","OpenAI GPT","Платный"),
     "mistral":     ("💨","Mistral","Бесплатно"),
     "together":    ("🤝","Together AI","Бесплатно"),
-    "huggingface": ("🤗","HuggingFace","Бесплатно"),
+    "huggingface":  ("🤗", "HuggingFace",    "Бесплатно"),
+    "polza":        ("🇷🇺", "Polza.ai",       "Российский • Без VPN • Рубли"),
+    "polza_gpt4o":  ("🇷🇺", "Polza → GPT-4o", "GPT-4o через Polza.ai"),
+    "polza_claude": ("🇷🇺", "Polza → Claude", "Claude 3.5 через Polza.ai"),
+    "polza_gemini": ("🇷🇺", "Polza → Gemini", "Gemini 2.0 через Polza.ai"),
+    "polza_llama":  ("🇷🇺", "Polza → Llama",  "Llama 70B через Polza.ai"),
 }
 
 @router.callback_query(F.data == "menu_ai")
