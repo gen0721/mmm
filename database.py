@@ -252,7 +252,12 @@ async def people_get(user_id: int) -> dict | None:
     if pool:
         async with pool.acquire() as conn:
             row = await conn.fetchrow("SELECT data FROM people WHERE user_id=$1", user_id)
-            return row["data"] if row else None
+            if row:
+                d = row["data"]
+                if isinstance(d, str):
+                    try: d = json.loads(d)
+                    except: d = {}
+                return d if isinstance(d, dict) else None
     return None
 
 async def people_set(user_id: int, data: dict):
@@ -272,7 +277,14 @@ async def people_all() -> dict:
     if pool:
         async with pool.acquire() as conn:
             rows = await conn.fetch("SELECT user_id, data FROM people")
-            return {str(r["user_id"]): r["data"] for r in rows}
+            result = {}
+            for r in rows:
+                d = r["data"]
+                if isinstance(d, str):
+                    try: d = json.loads(d)
+                    except: d = {}
+                result[str(r["user_id"])] = d if isinstance(d, dict) else {}
+            return result
     return {}
 
 # ═══════════════════════════════════════════════════════════
@@ -303,8 +315,9 @@ async def episodes_get(chat_id: int, limit: int = 5) -> list:
                 SELECT type,content,ts FROM episodes
                 WHERE chat_id=$1 ORDER BY ts DESC LIMIT $2
             """, chat_id, limit)
-            return [{"type":r["type"],"content":r["content"],
-                     "date":r["ts"].strftime("%d.%m.%Y %H:%M")} for r in reversed(rows)]
+            return [{"type": str(r["type"]),
+                     "content": str(r["content"]),
+                     "date": r["ts"].strftime("%d.%m.%Y %H:%M")} for r in reversed(rows)]
     return []
 
 async def episodes_clear(chat_id: int):
@@ -424,7 +437,14 @@ async def monitors_get_all() -> dict:
     if pool:
         async with pool.acquire() as conn:
             rows = await conn.fetch("SELECT channel,settings FROM channel_monitors")
-            return {r["channel"]: r["settings"] for r in rows}
+            result = {}
+            for r in rows:
+                s = r["settings"]
+                if isinstance(s, str):
+                    try: s = json.loads(s)
+                    except: s = {}
+                result[r["channel"]] = s if isinstance(s, dict) else {}
+            return result
     return {}
 
 async def monitor_set(channel: str, settings: dict):
