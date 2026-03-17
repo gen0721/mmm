@@ -314,14 +314,21 @@ async def menu_reply(cb: CallbackQuery):
 @router.callback_query(F.data.startswith("tr_"))
 @owner_only
 async def handle_reply_toggle(cb: CallbackQuery):
-    cfg=await load_config_async()
-    map_={"tr_autoreply":"autoreply_on","tr_pm":"pm_autoreply","tr_mention":"mention_reply",
-          "tr_sticker":"sticker_reply","tr_call":"call_reply","tr_join":"auto_join"}
-    key=map_.get(cb.data)
-    if key:
-        cfg[key]=not cfg.get(key,False); await save_config_async(cfg)
-        await cb.answer(f"{'✅' if cfg[key] else '❌'}", show_alert=False)
-    await menu_reply(cb)
+    try:
+        cfg = await load_config_async()
+        map_ = {"tr_autoreply":"autoreply_on","tr_pm":"pm_autoreply","tr_mention":"mention_reply",
+                "tr_sticker":"sticker_reply","tr_call":"call_reply","tr_join":"auto_join"}
+        key = map_.get(cb.data)
+        if key:
+            new_val = not cfg.get(key, False)
+            cfg[key] = new_val
+            await save_config_async(cfg)
+            log.info(f"✅ Toggle {key}={new_val} saved to DB")
+            await cb.answer(f"{'✅ Включено' if new_val else '❌ Выключено'}", show_alert=True)
+        await menu_reply(cb)
+    except Exception as e:
+        log.error(f"handle_reply_toggle error: {e}")
+        await cb.answer(f"❌ Ошибка: {str(e)[:50]}", show_alert=True)
 
 @router.callback_query(F.data == "edit_ar_text")
 @owner_only
@@ -508,11 +515,20 @@ async def menu_memory(cb: CallbackQuery):
 @router.callback_query(F.data.startswith("tmem_"))
 @owner_only
 async def toggle_mem(cb: CallbackQuery):
-    cfg=await load_config_async()
-    map_={"tmem_memory":"memory_on","tmem_summary":"auto_summary","tmem_people":"people_memory"}
-    key=map_.get(cb.data)
-    if key: cfg[key]=not cfg.get(key,True); await save_config_async(cfg); await cb.answer(f"{'✅' if cfg[key] else '❌'}",show_alert=False)
-    await menu_memory(cb)
+    try:
+        cfg = await load_config_async()
+        map_ = {"tmem_memory":"memory_on","tmem_summary":"auto_summary","tmem_people":"people_memory"}
+        key = map_.get(cb.data)
+        if key:
+            new_val = not cfg.get(key, True)
+            cfg[key] = new_val
+            await save_config_async(cfg)
+            log.info(f"✅ Toggle {key}={new_val} saved")
+            await cb.answer(f"{'✅ Включено' if new_val else '❌ Выключено'}", show_alert=True)
+        await menu_memory(cb)
+    except Exception as e:
+        log.error(f"toggle_mem error: {e}")
+        await cb.answer(f"❌ Ошибка: {str(e)[:50]}", show_alert=True)
 
 @router.callback_query(F.data.startswith("nmem_"))
 @owner_only
@@ -577,12 +593,20 @@ async def menu_security(cb: CallbackQuery):
 @router.callback_query(F.data.startswith("tsec_"))
 @owner_only
 async def toggle_sec(cb: CallbackQuery):
-    cfg=await load_config_async()
-    map_={"tsec_mat":("mat_filter",True),"tsec_2fa":("2fa_on",False)}
-    if cb.data in map_:
-        key,default=map_[cb.data]; cfg[key]=not cfg.get(key,default); await save_config_async(cfg)
-        await cb.answer(f"{'✅' if cfg[key] else '❌'}  {key}",show_alert=False)
-    await menu_security(cb)
+    try:
+        cfg = await load_config_async()
+        map_ = {"tsec_mat":("mat_filter",True),"tsec_2fa":("2fa_on",False)}
+        if cb.data in map_:
+            key, default = map_[cb.data]
+            new_val = not cfg.get(key, default)
+            cfg[key] = new_val
+            await save_config_async(cfg)
+            log.info(f"✅ Toggle {key}={new_val} saved")
+            await cb.answer(f"{'✅ Включено' if new_val else '❌ Выключено'}", show_alert=True)
+        await menu_security(cb)
+    except Exception as e:
+        log.error(f"toggle_sec error: {e}")
+        await cb.answer(f"❌ Ошибка: {str(e)[:50]}", show_alert=True)
 
 @router.callback_query(F.data == "sec_log")
 @owner_only
@@ -855,13 +879,23 @@ async def menu_settings(cb: CallbackQuery):
 @router.callback_query(F.data.startswith("tset_"))
 @owner_only
 async def toggle_settings(cb: CallbackQuery):
-    cfg=await load_config_async()
-    map_={"tset_translate":("translate_on",False),"tset_voice":("voice_reply",True),"tset_photo":("photo_analysis",True),
-          "tset_spy":("spy_mode",False),"tset_tts":("tts_reply",False),"tset_autostatus":("auto_status",False),"tset_link":("link_summary",True)}
-    if cb.data in map_:
-        key,default=map_[cb.data]; cfg[key]=not cfg.get(key,default); await save_config_async(cfg)
-        await cb.answer(f"{'✅' if cfg[key] else '❌'}  {key}",show_alert=False)
-    await menu_settings(cb)
+    try:
+        cfg = await load_config_async()
+        map_ = {"tset_translate":("translate_on",False),"tset_voice":("voice_reply",True),
+                "tset_photo":("photo_analysis",True),"tset_spy":("spy_mode",False),
+                "tset_tts":("tts_reply",False),"tset_autostatus":("auto_status",False),
+                "tset_link":("link_summary",True)}
+        if cb.data in map_:
+            key, default = map_[cb.data]
+            new_val = not cfg.get(key, default)
+            cfg[key] = new_val
+            await save_config_async(cfg)
+            log.info(f"✅ Toggle {key}={new_val} saved")
+            await cb.answer(f"{'✅ Включено' if new_val else '❌ Выключено'}", show_alert=True)
+        await menu_settings(cb)
+    except Exception as e:
+        log.error(f"toggle_settings error: {e}")
+        await cb.answer(f"❌ Ошибка: {str(e)[:50]}", show_alert=True)
 
 @router.callback_query(F.data.startswith("nset_"))
 @owner_only
