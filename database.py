@@ -127,7 +127,10 @@ async def kv_get(key: str, default=None) -> Any:
         async with pool.acquire() as conn:
             row = await conn.fetchrow("SELECT value FROM kv_store WHERE key=$1", key)
             if row:
-                return row["value"]
+                val = row["value"]
+                log.debug(f"kv_get OK: key={key} type={type(val).__name__} len={len(str(val)) if val else 0}")
+                return val
+        log.debug(f"kv_get MISS: key={key}")
         return default
     # Fallback JSON
     fname = f"{key}.json"
@@ -149,11 +152,13 @@ async def kv_set(key: str, value: Any):
                 ON CONFLICT (key) DO UPDATE
                 SET value=$2::jsonb, updated=NOW()
             """, key, json.dumps(value, ensure_ascii=False))
+        log.debug(f"kv_set OK: key={key} val_len={len(str(value))}")
         return
     # Fallback JSON
     fname = f"{key}.json"
     with open(fname, "w", encoding="utf-8") as f:
         json.dump(value, f, ensure_ascii=False, indent=2)
+    log.debug(f"kv_set JSON fallback: {fname}")
 
 # ═══════════════════════════════════════════════════════════
 # CHAT MEMORY (рабочая память диалогов)
