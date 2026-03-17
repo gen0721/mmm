@@ -128,7 +128,13 @@ async def kv_get(key: str, default=None) -> Any:
             row = await conn.fetchrow("SELECT value FROM kv_store WHERE key=$1", key)
             if row:
                 val = row["value"]
-                log.debug(f"kv_get OK: key={key} type={type(val).__name__} len={len(str(val)) if val else 0}")
+                # asyncpg может вернуть JSONB как строку — парсим явно
+                if isinstance(val, str):
+                    try:
+                        val = json.loads(val)
+                    except Exception:
+                        pass
+                log.debug(f"kv_get OK: key={key} type={type(val).__name__}")
                 return val
         log.debug(f"kv_get MISS: key={key}")
         return default
@@ -146,13 +152,14 @@ async def kv_set(key: str, value: Any):
     pool = await get_pool()
     if pool:
         async with pool.acquire() as conn:
+            json_str = json.dumps(value, ensure_ascii=False)
             await conn.execute("""
                 INSERT INTO kv_store (key, value, updated)
                 VALUES ($1, $2::jsonb, NOW())
                 ON CONFLICT (key) DO UPDATE
                 SET value=$2::jsonb, updated=NOW()
-            """, key, json.dumps(value, ensure_ascii=False))
-        log.debug(f"kv_set OK: key={key} val_len={len(str(value))}")
+            """, key, json_str)
+        log.debug(f"kv_set OK: key={key} len={len(json_str)}")
         return
     # Fallback JSON
     fname = f"{key}.json"
