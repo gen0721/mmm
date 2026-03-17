@@ -37,6 +37,18 @@ dp     = Dispatcher(storage=MemoryStorage())
 router = Router()
 dp.include_router(router)
 
+@router.errors()
+async def error_handler(event, exception: Exception):
+    """Глобальный обработчик ошибок"""
+    log.error(f"Aiogram error: {exception}")
+    try:
+        if hasattr(event, 'update') and event.update.callback_query:
+            await event.update.callback_query.answer(
+                f"❌ Ошибка: {str(exception)[:100]}",
+                show_alert=True
+            )
+    except: pass
+
 LINE  = "━━━━━━━━━━━━━━━━━━━━━━━━"
 LINE2 = "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"
 ON    = "🟢"
@@ -843,16 +855,29 @@ async def stats_db(cb: CallbackQuery):
 @router.callback_query(F.data == "menu_db")
 @owner_only
 async def menu_db(cb: CallbackQuery):
+    lines = ["❌ Загрузка..."]
     try:
-        stats=await db_stats(); backend=stats.get("backend","?")
-        if backend=="PostgreSQL":
-            tables=stats.get("tables",{}); total=sum(tables.values())
-            lines=[f"{header('🗄️','PostgreSQL ✅')}\n",f"🔗  Railway  •  📦  <code>{total}</code> записей\n"]
-            for t,c in tables.items(): lines.append(f"  •  <code>{t}</code>: {c}")
+        stats = await db_stats()
+        backend = stats.get("backend", "?") if isinstance(stats, dict) else "?"
+        if backend == "PostgreSQL":
+            tables = stats.get("tables", {})
+            total = sum(tables.values()) if tables else 0
+            lines = [f"{header('🗄️','PostgreSQL ✅')}\n",
+                     f"🔗  Railway  •  📦  <code>{total}</code> записей\n"]
+            for t, c in tables.items():
+                lines.append(f"  •  <code>{t}</code>: {c}")
         else:
-            lines=[f"{header('📁','JSON хранилище')}\n\n<i>PostgreSQL не подключён\nДобавь DATABASE_URL → Railway → New Plugin → PostgreSQL</i>"]
-    except Exception as e: lines=[f"❌  Ошибка: {e}"]
-    await cb.message.edit_text("\n".join(lines),reply_markup=kb([("🔄  Обновить","menu_db")],back()))
+            lines = [f"{header('📁','JSON хранилище')}\n\n"
+                     f"<i>PostgreSQL не подключён\nДобавь DATABASE_URL → Railway → New Plugin → PostgreSQL</i>"]
+    except Exception as e:
+        lines = [f"❌  Ошибка: {e}"]
+    try:
+        await cb.message.edit_text(
+            "\n".join(lines),
+            reply_markup=kb([("🔄  Обновить", "menu_db")], back())
+        )
+    except Exception as e:
+        await cb.answer(f"❌ {e}", show_alert=True)
 
 # ━━ НАСТРОЙКИ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @router.callback_query(F.data == "menu_settings")
